@@ -1,16 +1,26 @@
-from flask import Flask
-import sklearn.external.joblib as extjoblib
-import joblib
+import uvicorn
+from fastapi import FastAPI
+from model import graphVisualization
 
-app = Flask(__name__)
+app = FastAPI()
+model = graphVisualization()
 
-@app.route("/")
-def enter():
-    return 'welcome to the app'
+@app.get('/')
+def index():
+    return {'message': 'hello'}
+
+@app.get('/{name}')
+def get_name(name: str):
+    return {'message': f'Hello, {name}'}
+
+@app.post('/draw')
+def draw_network():
+    network = model.simple_graph()
+    return {
+        'network': network
+    }
+
 
 if __name__ == '__main__':
-    app.run(debug = True, port = 3000)
+    uvicorn.run(app, host='127.0.0.1', port=8000)
 
-joblib.dump(lr, 'model.pkl')
-
-lr = joblib.load('model.pkl')
